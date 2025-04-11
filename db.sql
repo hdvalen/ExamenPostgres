@@ -1,6 +1,8 @@
 
 CREATE DATABASE tiendaTecnologia;
 
+\c tiendaTecnologia
+
 CREATE TABLE proveedores(
     idProveedores SERIAL PRIMARY KEY,
     nombre VARCHAR(50),

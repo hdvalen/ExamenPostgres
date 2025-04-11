@@ -4,35 +4,36 @@
     FROM productos
     WHERE stockDisponible < 5;
 -- 2. Calcular ventas totales de un mes específico.
-
+    SELECT SUM(cantidad) AS total_ventas
+    FROM ventas v
+    INNER JOIN fecha_venta f ON v.idVentas = f.idFecha_venta
+    WHERE f.fechaVenta BETWEEN '2025-04-01' AND '2025-04-30';
 -- 3. Obtener el cliente con más compras realizadas.
-    SELECT idClientes, COUNT(*) AS total_compras
+    SELECT idClientes, COUNT(cantidad) AS total_compras
     FROM ventas
     GROUP BY idClientes
     ORDER BY total_compras DESC
     LIMIT 1;
 -- 3. Listar los 5 productos más vendidos.
-    SELECT idProductos, COUNT(cantidad) AS total_vendido
-    FROM ventas
-    INNER JOIN venta_producto ON ventas(idVentas)=venta_producto(idVentas)
-    INNER JOIN productos ON venta_producto(idProductos)=productos(idProductos)
-    GROUP BY idProductos
-    ORDER BY total_vendido DESC
+    SELECT p.idProductos, p.nombre, COUNT(v.cantidad) AS totalVendido 
+    FROM productos p
+    INNER JOIN venta_producto vp ON p.idProductos= vp.idProductos
+    INNER JOIN ventas v ON vp.idVentas= v.idVentas
+    GROUP BY p.idProductos
     LIMIT 5;
 
 -- 4. Consultar ventas realizadas en un rango de fechas de tres Días y un Mes.
-    SELECT idClientes 
-    FROM ventas
-    WHERE fecha_venta BETWEEN '2025-03-01' AND '2025-03-03';  
+    SELECT v.idVentas, v.cantidad, f.fechaVenta, f.horaVenta
+    FROM ventas v
+    INNER JOIN fecha_venta f ON v.idVentas= f.idFecha_venta
+    WHERE f.fechaVenta BETWEEN '2025-04-01' AND '2025-04-30'; 
 
 -- 5. Identificar clientes que no han comprado en los últimos 6 meses.
-SELECT cliente_id
-FROM clientes
-WHERE cliente_id NOT IN (
-  SELECT DISTINCT cliente_id
-  FROM ventas
-  WHERE fecha_venta > NOW() - INTERVAL 6 MONTH
-);
+    SELECT c.idClientes, c.nombre
+    FROM clientes c
+    LEFT JOIN ventas v ON c.idClientes = v.idClientes
+    INNER JOIN fecha_venta f ON v.idVentas = f.idFecha_venta
+    WHERE v.idVentas IS NULL OR f.fechaVenta < NOW() - INTERVAL '6 months';
 
 
 
